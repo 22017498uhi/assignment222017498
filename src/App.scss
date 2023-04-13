@@ -32,7 +32,23 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
+  }
+}
+
+
+//RP custom styles
+.login-btn-image {
+  background-color: white;
+    padding: 9.5px;
+    position: relative;
+    left: -13px;
+    top: 0.5px;
+    border: 1px solid #0d6efd;
+
+  img{
+    width: 22px;
   }
 }
