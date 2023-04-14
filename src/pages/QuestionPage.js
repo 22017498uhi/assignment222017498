@@ -2,6 +2,7 @@ import QuestionSection from "../components/QuestionSection";
 import HintsSection from "../components/HintsSection";
 import AnswerSection from "../components/AnswerSection";
 
+
 function QuestionPage() {
     return (   
     <div className="container-fluid" style={{width:'98%'}}>

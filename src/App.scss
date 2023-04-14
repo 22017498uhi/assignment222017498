@@ -1,4 +1,3 @@
-
 .App {
   text-align: center;
 }
@@ -43,13 +42,90 @@
 //RP custom styles
 .login-btn-image {
   background-color: white;
-    padding: 9.5px;
-    position: relative;
-    left: -13px;
-    top: 0.5px;
-    border: 1px solid #0d6efd;
+  padding: 9.5px;
+  position: relative;
+  left: -13px;
+  top: 0.5px;
+  border: 1px solid #0d6efd;
 
-  img{
+  img {
     width: 22px;
   }
 }
+
+//Define some animations
+@keyframes anvil {
+  0% {
+    transform: scale(1) translateY(0px);
+    opacity: 0;
+    box-shadow: 0 0 0 rgba(241, 241, 241, 0);
+  }
+  1% {
+    transform: scale(0.96) translateY(10px);
+    opacity: 0;
+    box-shadow: 0 0 0 rgba(241, 241, 241, 0);
+  }
+  100% {
+    transform: scale(1) translateY(0px);
+    opacity: 1;
+    box-shadow: 0 0 500px rgba(241, 241, 241, 0);
+  }
+}
+
+
+@keyframes myscale{
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+
+//Popup Styles below
+.my-modal>.close {
+
+  background: 0 0;
+  border: none;
+  color: #000;
+  float: right;
+ 
+  font-weight: 600;
+  line-height: 1;
+  
+  padding: 1rem;
+  background-color: #fff;
+  border: 1px solid #282c34;
+  border-radius: 30px;
+  cursor: pointer;
+  display: block;
+  font-size: 32px;
+  padding: 10px 15px;
+  position: absolute;
+  right: -25px;
+  top: -25px;
+
+  &:hover{
+    animation: myscale 0.2s cubic-bezier(0.38, 0.1, 0.36, 0.9) forwards;
+  }
+}
+
+a:not([href]) {
+  text-decoration: none
+}
+
+//override reactjs-popup styles
+.popup-content{
+  width: inherit !important;
+  animation: anvil 0.5s cubic-bezier(0.38, 0.1, 0.36, 0.9) forwards;
+}
+
+
+.popup-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+

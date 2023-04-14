@@ -1,4 +1,5 @@
 import logo from './logo.svg';
+import "../node_modules/reactjs-popup/dist/index.css"
 import './App.scss';
 
 //Import components
@@ -18,6 +19,8 @@ import { onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from 'react';
 
 import { auth } from './services/firebase';
+
+
 
 function PrivateRoute({authenticated}) {
   return (
