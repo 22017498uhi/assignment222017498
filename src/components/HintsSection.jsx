@@ -3,8 +3,11 @@ import { firestore, storage } from "../services/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
 import Popup from 'reactjs-popup';
+import ReactPlayer from 'react-player'
 
 import { ref, getDownloadURL } from "firebase/storage";
+
+
 
 
 
@@ -17,10 +20,9 @@ function HintsSection() {
 
     const [hintsData, setHintsData] = useState("")
 
-    const [clickedButtonName, setClickedButtonName] = useState("")
-
+   
     const [summaryImageUrl, setSummaryImageUrl] = useState("")
-    const [videoUrl, setvideoUrl] = useState("")
+    const [videoUrl, setVideoUrl] = useState("")
 
 
     const [summaryPopupOpen, setSummaryPopupOpen] = useState(false);
@@ -28,6 +30,8 @@ function HintsSection() {
 
 
     const closeSummaryModal = () => setSummaryPopupOpen(false);
+    const closeVideoModal = () => setVideoPopupOpen(false);
+
 
     //function called inside useEffect
     const getFirebaseData = async () => {
@@ -86,19 +90,25 @@ function HintsSection() {
                                         {videoObj?.type == columnObj.linkTitle && videoObj?.link == rowObj.linkTitle
                                             && (
                                                 <div className="d-flex flex-column" style={{ border: `2px solid ${videoObj?.type === 'general' ? '#0d6efcb8' : '#1987549c'}`, padding: '4px 4px 2px 4px', borderRadius: '5px' }}>
-                                                    <button type="button" name={videoObj.title} className={`btn mb-1 p-2 ${videoObj?.type === 'general' ? 'btn-primary' : 'btn-success'}`} > VIDEO</button>
-                                                    <button type="button" name={videoObj.title} className={`btn mb-1 p-2 ${videoObj?.type === 'general' ? 'btn-primary' : 'btn-success'}`}
+                                                    <button type="button" name={videoObj.title} 
+                                                    className={`btn mb-1 p-2 ${videoObj?.type === 'general' ? 'btn-primary' : 'btn-success'}`}
+                                                    onClick={() => {
+                                                        getDownloadURL(ref(storage, `quesvideos/${videoObj.title}.mp4`))
+                                                            .then((url) => {
+                                                                setVideoUrl(url);
+                                                                setVideoPopupOpen(o => !o)
+                                                            });
+                                                    }}>VIDEO</button>
+                                                    
+                                                    <button type="button" name={videoObj.title} 
+                                                    className={`btn mb-1 p-2 ${videoObj?.type === 'general' ? 'btn-primary' : 'btn-success'}`}
                                                         onClick={() => {
-
                                                             getDownloadURL(ref(storage, `quesimages/${videoObj.title}.jpg`))
                                                             .then((url) => {
                                                                 setSummaryImageUrl(url);
                                                                 setSummaryPopupOpen(o => !o)
                                                             });
-                                                            
-                                                        }
-
-                                                        }> SUMMARY</button>
+                                                        }}>SUMMARY</button>
                                                 </div>
                                             )}
                                     </div>
@@ -119,13 +129,23 @@ function HintsSection() {
 
             </div>
 
-            {/* Popup code is below */}
+            {/* Summary Button Popup code is below */}
             <Popup open={summaryPopupOpen} onClose={closeSummaryModal}>
                 <div className="my-modal">
                     <a className="close" onClick={closeSummaryModal}>
                         &times;
                     </a>
                     <span><img style={{ maxWidth: '640px', maxHeight: '480px' }} src={summaryImageUrl}></img></span>
+                </div>
+            </Popup>
+
+            {/* Video Button Popup code is below */}
+            <Popup open={videoPopupOpen} onClose={closeVideoModal}>
+                <div className="my-modal">
+                    <a className="close" onClick={closeVideoModal}>
+                        &times;
+                    </a>
+                    <span><ReactPlayer url={videoUrl} playing="true"   width={640} height={480} controls="true" /></span>
                 </div>
             </Popup>
 
