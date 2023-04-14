@@ -4,7 +4,7 @@ import AnswerSection from "../components/AnswerSection";
 
 function QuestionPage() {
     return (   
-    <div className="container">
+    <div className="container-fluid" style={{width:'98%'}}>
         <h1 className="text-center">Question Page</h1>
         <div className="row">
             <QuestionSection />

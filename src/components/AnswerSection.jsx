@@ -1,8 +1,8 @@
 function AnswerSection() {
 return (
     <div className="col-12">
-        <h3 className="text-center">Answers</h3>
-        <div className="p-3 mb-2 bg-light">
+        <h2 className="text-center">Answers</h2>
+        <div className="p-3 mb-2" style={{backgroundColor:'#ecf0f1'}}>
             <div className="row">
                 <div className="col-sm d-grid gap-2">
                     <button type="button" className="btn btn-secondary mb-2 p-4">Secondary</button>
