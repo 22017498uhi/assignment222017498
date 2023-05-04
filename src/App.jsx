@@ -5,6 +5,7 @@ import './App.scss';
 //Import components
 import QuestionPage from './pages/QuestionPage';
 import Login from './components/Login';
+import HeaderNav from './components/HeaderNav';
 
 //Import modules
 import {
@@ -25,7 +26,10 @@ import { auth } from './services/firebase';
 function PrivateRoute({authenticated}) {
   return (
     authenticated === true ? (
+      <>
+      <HeaderNav />
       <Outlet />
+      </>
     )
    : (
     <Navigate

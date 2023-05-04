@@ -21,7 +21,7 @@ function Login() {
                     signInWithPopup(auth, provider);
 
                 }}>
-                    <span className="login-btn-image"><img class="google-icon" src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" /></span><span>Login with Google</span>
+                    <span className="login-btn-image"><img class="google-icon" src="https://firebasestorage.googleapis.com/v0/b/assignment222017498.appspot.com/o/google_logo.svg?alt=media&token=40b74b3a-83c4-42f9-b62c-d06b65cd1ffd" /></span><span>Login with Google</span>
                 </button>
                 </div>
 

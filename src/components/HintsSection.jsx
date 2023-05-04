@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { firestore, storage } from "../services/firebase";
-import { doc, getDoc } from "firebase/firestore";
-
+import { app, firestore, auth, analytics, storage, database } from "../services/firebase";
+import { doc, getDoc, setDoc, collection, addDoc, Timestamp } from "firebase/firestore";
 import Popup from 'reactjs-popup';
 import ReactPlayer from 'react-player'
-
 import { ref, getDownloadURL } from "firebase/storage";
 
-
-
-
+import Alert from 'react-bootstrap/Alert';
 
 
 
@@ -17,56 +13,87 @@ import { ref, getDownloadURL } from "firebase/storage";
 function HintsSection() {
 
     const questionId = "balances" // should be done through URL and routing with useParams()
-
     const [hintsData, setHintsData] = useState("")
-
-
-    const [summaryImageUrl, setSummaryImageUrl] = useState("")
-    const [videoUrl, setVideoUrl] = useState("")
-
-
-    const [summaryPopupOpen, setSummaryPopupOpen] = useState(false);
-    const [videoPopupOpen, setVideoPopupOpen] = useState(false);
-
-    const [showConfusedForm, setShowConfusedForm] = useState(false);
+    const [summaryImageUrl, setSummaryImageUrl] = useState("") //URL of current image on popup
+    const [videoUrl, setVideoUrl] = useState("") //URL of current video on popup
+    const [selectedVideoObj, setSelectedVideoObj] = useState({}) // data of video currently shown on popup
+    const [summaryPopupOpen, setSummaryPopupOpen] = useState(false); //flag to indicate if summary popup is open
+    const [videoPopupOpen, setVideoPopupOpen] = useState(false); //flag to indicate if video popup is open
+    const [showConfusedForm, setShowConfusedForm] = useState(false); //flag to indicate if confused button is clicked or not
+    const [confusedText, setConfusedText] = useState("") // data of video currently shown on popup
+    const [confusedMsgSubmitted, setConfusedMsgSubmitted] = useState(false) // flag to indicate confused message submission status
 
 
     const closeSummaryModal = () => setSummaryPopupOpen(false);
-    const closeVideoModal = () => setVideoPopupOpen(false);
 
+    const closeVideoModal = () => {
+        setVideoPopupOpen(false); //close popup
+        setConfusedText(""); //reset textarea on confused form
+        setShowConfusedForm(false) //also reset the confused button
+        setConfusedMsgSubmitted(false)
+        setConfusedMsgSubmitted(false);
+    }
 
     //function called inside useEffect
     const getFirebaseData = async () => {
 
         const questionsRef = doc(firestore, "Questions", questionId);
-
         const questionsDocSnap = await getDoc(questionsRef);
 
         if (questionsDocSnap.exists()) {
             const questionData = questionsDocSnap.data()
-            console.log(questionData[questionId].hint);
             setHintsData(questionData[questionId].hint)
-
         } else {
-            // docSnap.data() will be undefined in this case
             console.log("No such document!");
         }
     }
 
     useEffect(() => {
-
         getFirebaseData();
-
     }, [])
 
+
+    const sendConfusedMessageDB = async () => {
+        console.log(selectedVideoObj);
+        console.log(confusedText);
+        console.log(auth?.currentUser?.uid);
+
+        //first add chatroom
+        const chatRoomObj = {
+            user: auth?.currentUser?.uid,
+            video: selectedVideoObj,
+            question: doc(firestore, "Questions", questionId)
+        }
+
+        //setDoc - add if not there.. if already there ignore, if any change, update existing record.
+        const chatRoomId = `${auth?.currentUser?.uid}_${questionId}_${selectedVideoObj.title}`;
+
+        setDoc(doc(firestore, "chatrooms",
+            chatRoomId), (chatRoomObj), { merge: true }).then(() => {
+                //once chatroom is created, add user's message and link with above chatroom
+                const chatmessageObj = {
+                    chatroom: doc(firestore, "Questions", chatRoomId),
+                    text: confusedText,
+                    user: auth?.currentUser?.uid,
+                    createdAt : Timestamp.fromDate(new Date()) //store current time
+                }
+                //now add chat message under above chatroom
+                addDoc(collection(firestore, "chatmessages"), (chatmessageObj)).then(() => {
+                    //once both chatroom and chat message is created, set flags to indicate status
+                    setConfusedMsgSubmitted(true);
+                })
+
+            })
+    }
 
     return (
         <div className="col-sm">
             <h2 className="text-center">Hints</h2>
 
             <div className="p-3 mb-2" style={{ backgroundColor: '#ecf0f1' }}>
-                <div className="row">
 
+                <div className="row">
+                    {/* its blank div as header has only two elements whereas rows are three */}
                     <div className="col-2 text-center"></div>
 
                     {/* iterate over titleColumn */}
@@ -98,6 +125,7 @@ function HintsSection() {
                                                             getDownloadURL(ref(storage, `quesvideos/${videoObj.title}.mp4`))
                                                                 .then((url) => {
                                                                     setVideoUrl(url);
+                                                                    setSelectedVideoObj(videoObj);
                                                                     setVideoPopupOpen(o => !o)
                                                                 });
                                                         }}>VIDEO</button>
@@ -117,22 +145,13 @@ function HintsSection() {
                                 ))}
                             </div>
                         ))}
-
-
-
-
                     </div>
                 ))}
-
-
-
-
-
-
             </div>
 
+
             {/* Summary Button Popup code is below */}
-            <Popup lockScroll repositionOnResize  open={summaryPopupOpen}  onClose={closeSummaryModal}>
+            <Popup lockScroll repositionOnResize open={summaryPopupOpen} onClose={closeSummaryModal}>
                 <div className="my-modal">
                     <a className="close" onClick={closeSummaryModal}>
                         &times;
@@ -142,30 +161,40 @@ function HintsSection() {
             </Popup>
 
             {/* Video Button Popup code is below */}
-            <Popup lockScroll repositionOnResize open={videoPopupOpen}  onClose={closeVideoModal}>
-                <div className="my-modal my-2">
+            <Popup lockScroll repositionOnResize open={videoPopupOpen} onClose={closeVideoModal}>
+                <div className="my-modal my-2" style={{ width: '640px' }}>
                     <a className="close" onClick={closeVideoModal}>
                         &times;
                     </a>
                     <div><ReactPlayer url={videoUrl} playing="true" width={640} height="50vh" controls="true" /></div>
                     <div className='d-flex justify-content-end my-2 mx-3'>
-                        { !showConfusedForm && <button className='btn btn-danger' onClick={() => {
+                        {!showConfusedForm && <button className='btn btn-danger' onClick={() => {
                             setShowConfusedForm(true)
-                        }}>Confused?</button> }
+                        }}>Confused?</button>}
                     </div>
 
                     {/* Confused question posting stuff below */}
-                    {showConfusedForm &&<div className='mx-3'>
+                    {!confusedMsgSubmitted && showConfusedForm && <div className='mx-3'>
                         <div>What have you found confusing about this video?</div>
-                        <textarea class="form-control" style={{borderColor:'grey'}} id="videoquerytext" rows="2"></textarea>
+                        <textarea class="form-control" style={{ borderColor: 'grey' }} id="videoquerytext" rows="2"
+                            value={confusedText} onChange={(value) => {
+                                setConfusedText(value.target.value)
+                            }}></textarea>
 
-                         <div className='mt-3'>
-                            <button className='btn btn-primary me-3'>Send</button>
+                        <div className='mt-3'>
+                            <button className='btn btn-primary me-3' onClick={sendConfusedMessageDB}>Send</button>
                             <button className='btn btn-outline-dark' onClick={() => {
                                 setShowConfusedForm(false)
                             }}>Cancel</button>
                         </div>
+
                     </div>}
+
+                    {/* Confused message submitted */}
+                        <Alert show={confusedMsgSubmitted} variant="success">
+                        <Alert.Heading> Your message was sent,and you will get a reply within 3 days.</Alert.Heading>
+                            </Alert>
+                    {/* <div className='bg-body-secondary border border-secondary-subtle text-center fs-4 text-wrap p-2'>Your message was sent,and you will get a reply within 3 days.</div> */}
                 </div>
             </Popup>
 

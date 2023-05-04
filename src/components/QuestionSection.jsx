@@ -2,20 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { firestore } from "../services/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
-
-
 function QuestionSection() {
 
 const [title, setTitle] = useState("")
 const [questionText, setQuestionText] = useState("")
 const [imageUri, setImageUri] = useState("")
-const questionId = "balances" // should be done through URL and routing with useParams()
 
+const questionId = "balances" // should be done through URL and routing with useParams()
 
 //function called inside useEffect
 const getFirebaseData = async () => {
-    const questionsRef = doc(firestore, "Questions", questionId);
 
+    const questionsRef = doc(firestore, "Questions", questionId);
     const questionsDocSnap = await getDoc(questionsRef);
 
     if (questionsDocSnap.exists()) {
@@ -25,15 +23,12 @@ const getFirebaseData = async () => {
         setQuestionText(questionData[questionId].questions.fullquestion.question)
         setImageUri(questionData[questionId].questions.fullquestion.questionImage)
     } else {
-        // docSnap.data() will be undefined in this case
         console.log("No such document!");
     }
 }
 
 useEffect( () => {
-
     getFirebaseData();
-
 },[])
 
 
