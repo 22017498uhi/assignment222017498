@@ -60,9 +60,10 @@ function HintsSection() {
 
         //first add chatroom
         const chatRoomObj = {
-            user: auth?.currentUser?.uid,
+            user: doc(firestore, "users", auth?.currentUser?.email),
             video: selectedVideoObj,
-            question: doc(firestore, "Questions", questionId)
+            question: doc(firestore, "Questions", questionId),
+            updatedAt : Timestamp.fromDate(new Date()) //store current time
         }
 
         //setDoc - add if not there.. if already there ignore, if any change, update existing record.
@@ -74,8 +75,8 @@ function HintsSection() {
                 const chatmessageObj = {
                     chatroom: doc(firestore, "Questions", chatRoomId),
                     text: confusedText,
-                    user: auth?.currentUser?.uid,
-                    createdAt : Timestamp.fromDate(new Date()) //store current time
+                    user: doc(firestore, "users", auth?.currentUser?.email), //email is key for users collection
+                    updatedAt : Timestamp.fromDate(new Date()) //store current time
                 }
                 //now add chat message under above chatroom
                 addDoc(collection(firestore, "chatmessages"), (chatmessageObj)).then(() => {
@@ -98,7 +99,7 @@ function HintsSection() {
 
                     {/* iterate over titleColumn */}
                     {hintsData && hintsData.titleColumn.map((columnObj) => (
-                        <div className="col-5 text-center">
+                        <div key={columnObj.linkTitle} className="col-5 text-center">
                             <p className={`sda ${columnObj?.linkTitle === 'general' ? 'text-primary' : 'text-success'}`}>{columnObj.columnTitle}</p>
                         </div>
                     ))}
@@ -106,16 +107,16 @@ function HintsSection() {
 
                 {/* iterate over each title - this will be our rows */}
                 {hintsData && hintsData.title.map((rowObj) => (
-                    <div className="row mb-2">
+                    <div key={rowObj.rowTitle} className="row mb-2">
                         <div className="col-2 text-center" style={{ alignSelf: 'center' }}>
                             <p>{rowObj.rowTitle}</p>
                         </div>
 
                         {/* Now iterate over each column and find out videos for it */}
                         {hintsData && hintsData?.titleColumn.map((columnObj) => (
-                            <div className="col-5 text-center">
-                                {hintsData?.video.map((videoObj) => (
-                                    <div >
+                            <div key={columnObj.linkTitle} className="col-5 text-center">
+                                {hintsData?.video.map((videoObj, $index) => (
+                                    <div key={$index}>
                                         {videoObj?.type == columnObj.linkTitle && videoObj?.link == rowObj.linkTitle
                                             && (
                                                 <div className="d-flex flex-column" style={{ border: `2px solid ${videoObj?.type === 'general' ? '#0d6efcb8' : '#1987549c'}`, padding: '4px 4px 2px 4px', borderRadius: '5px' }}>
@@ -166,7 +167,7 @@ function HintsSection() {
                     <a className="close" onClick={closeVideoModal}>
                         &times;
                     </a>
-                    <div><ReactPlayer url={videoUrl} playing="true" width={640} height="50vh" controls="true" /></div>
+                    <div><ReactPlayer url={videoUrl} playing={true} width={640} height="50vh" controls={true} /></div>
                     <div className='d-flex justify-content-end my-2 mx-3'>
                         {!showConfusedForm && <button className='btn btn-danger' onClick={() => {
                             setShowConfusedForm(true)
@@ -176,7 +177,7 @@ function HintsSection() {
                     {/* Confused question posting stuff below */}
                     {!confusedMsgSubmitted && showConfusedForm && <div className='mx-3'>
                         <div>What have you found confusing about this video?</div>
-                        <textarea class="form-control" style={{ borderColor: 'grey' }} id="videoquerytext" rows="2"
+                        <textarea className="form-control" style={{ borderColor: 'grey' }} id="videoquerytext" rows="2"
                             value={confusedText} onChange={(value) => {
                                 setConfusedText(value.target.value)
                             }}></textarea>
