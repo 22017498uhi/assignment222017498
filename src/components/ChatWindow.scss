@@ -4,7 +4,12 @@
     width: 450px;
 }
 
+.popover-header{
+  background-color: #00BCD4;
+}
+
 .popover-body{
+  padding: 0;
     height: 500px;
     overflow-y: auto;
 }
@@ -12,6 +17,14 @@
 .list-group-item:hover{
     background-color: aliceblue;
     cursor: pointer;
+}
+
+hr{
+  margin: 0;
+}
+
+.bs-popover-bottom>.popover-arrow::before, .bs-popover-bottom>.popover-arrow::after{
+  border-bottom-color: #00BCD4;
 }
 
 .iwse-chatroom-wrapper{
@@ -36,4 +49,8 @@
         text-decoration: none;
         color: #333;
       }
+}
+
+.iwse-chat-header{
+  background-color: #ededed;
 }

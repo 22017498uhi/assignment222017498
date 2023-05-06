@@ -7,6 +7,8 @@ import QuestionPage from './pages/QuestionPage';
 import Login from './components/Login';
 import HeaderNav from './components/HeaderNav';
 
+import GlobalState from './context/GlobalState';
+
 //Import modules
 import {
   Route,
@@ -27,7 +29,8 @@ function PrivateRoute({authenticated}) {
   return (
     authenticated === true ? (
       <>
-      <HeaderNav />
+      {/* pass globalstate only for headerNav */}
+      <GlobalState><HeaderNav /></GlobalState> 
       <Outlet />
       </>
     )

@@ -4,6 +4,9 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+//import bootstrap icons
+import "bootstrap-icons/font/bootstrap-icons.css";
+
 //test comment
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
