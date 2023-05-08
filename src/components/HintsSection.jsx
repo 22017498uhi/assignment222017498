@@ -73,7 +73,7 @@ function HintsSection() {
             chatRoomId), (chatRoomObj), { merge: true }).then(() => {
                 //once chatroom is created, add user's message and link with above chatroom
                 const chatmessageObj = {
-                    chatroom: doc(firestore, "Questions", chatRoomId),
+                    chatroom: doc(firestore, "chatrooms", chatRoomId),
                     text: confusedText,
                     user: doc(firestore, "users", auth?.currentUser?.email), //email is key for users collection
                     updatedAt : Timestamp.fromDate(new Date()) //store current time
@@ -90,6 +90,9 @@ function HintsSection() {
     return (
         <div className="col-sm">
             <h2 className="text-center">Hints</h2>
+
+         
+         
 
             <div className="p-3 mb-2" style={{ backgroundColor: '#ecf0f1' }}>
 

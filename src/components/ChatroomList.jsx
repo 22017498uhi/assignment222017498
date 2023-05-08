@@ -76,6 +76,7 @@ function ChatroomList() {
 
     return (
             <div className='iwse-chatroom-wrapper'>
+               
                 <ListGroup variant='flush'>
                     {chatRooms && chatRooms.map((chatroomObj) => (
                         <ListGroup.Item key={chatroomObj.id} onClick={() => { updateSelectedChatRoom(chatroomObj) }}>
