@@ -3,7 +3,8 @@ import Context from "./context";
 
 export default class GlobalState extends React.Component {
     state = {
-        selectedChatRoom: {}
+        selectedChatRoom: {},
+        loggedInUser: {}
     }
 
 
@@ -13,12 +14,20 @@ export default class GlobalState extends React.Component {
         })
     }
 
+    updateLoggedInUser = (userObj) => {
+        this.setState({
+            loggedInUser: userObj
+        })
+    }
+
     render(){
         return (
             <Context.Provider
             value={{
                 selectedChatRoom: this.state.selectedChatRoom,
-                updateSelectedChatRoom: this.updateSelectedChatRoom
+                updateSelectedChatRoom: this.updateSelectedChatRoom,
+                loggedInUser: this.state.loggedInUser,
+                updateLoggedInUser: this.updateLoggedInUser
             }}
             >
                 {this.props.children}

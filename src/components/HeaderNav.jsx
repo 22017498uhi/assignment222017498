@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 
 import { Nav, Button, Card, ListGroup, Badge } from 'react-bootstrap'
 
@@ -10,10 +10,44 @@ import { QuerySnapshot, collection, getDocs, onSnapshot, addDoc, orderBy, query,
 
 import ChatWindow from './ChatWindow';
 
+import appContext from '../context/context';
 
 
 
 function HeaderNav() {
+
+    const { loggedInUser, updateLoggedInUser } = useContext(appContext);
+
+
+    const fetchLoggedInUserFirebase = async () => {
+
+        auth.onAuthStateChanged(async (user) => {
+            if(user){
+                const userRef = doc(firestore, "users", user.email); //email is unique id for users collection
+                const userDoc = await getDoc(userRef);
+
+                if (userDoc.exists()) {
+                    console.log('looged un user found')
+                    console.log(userDoc.data())
+                    updateLoggedInUser(userDoc.data())
+
+                    
+                }
+
+            }else{
+                //logout
+                //clear global state
+                updateLoggedInUser({})
+
+            }
+        })
+
+    }
+
+    useEffect(() => {
+        fetchLoggedInUserFirebase();
+    }, [])
+    
 
 
     const popover = (

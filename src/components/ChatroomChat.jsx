@@ -1,20 +1,29 @@
 import React, { useEffect, useState, useContext } from 'react';
 
 import { app, firestore, auth, analytics, storage, database } from "../services/firebase";
-import { QuerySnapshot, collection, getDocs, onSnapshot, addDoc, orderBy, query, doc, updateDoc, getDoc, where, Timestamp } from "firebase/firestore";
-import { Badge, InputGroup, Button } from 'react-bootstrap';
-import chatContext from '../context/context';
+import { QuerySnapshot, collection, setDoc, onSnapshot, addDoc, orderBy, query, doc, updateDoc, getDoc, where, Timestamp } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+import { Badge, InputGroup, Button, Toast } from 'react-bootstrap';
+import appContext from '../context/context';
 
 
 
 function ChatroomChat() {
 
-    const { selectedChatRoom, updateSelectedChatRoom } = useContext(chatContext);
+    const { selectedChatRoom, updateSelectedChatRoom } = useContext(appContext);
+
+    const { loggedInUser } = useContext(appContext);
+
+    console.log(loggedInUser);
+
 
     const [chatMessages, setChatMessages] = useState([]);
 
+    const [localChatMsgImage, setLocalChatMsgImage] = useState("");
     const [userText, setUserText] = useState("");
 
+   
     //function called inside useEffect
     const getFirebaseData = async () => {
 
@@ -34,8 +43,7 @@ function ChatroomChat() {
         onSnapshot(chatroomQuery, (snapshot) => {
             let chatMessagesLocalArr = [];
 
-            snapshot.docChanges()
-
+          
             snapshot.docs.forEach(async (doc) => {
                 var chatMessageObj = {}
 
@@ -80,15 +88,84 @@ function ChatroomChat() {
 
         console.log('submitted');
 
-        const chatmessageObj = {
+
+        let chatmessageObj = {
             chatroom: doc(firestore, "chatrooms", selectedChatRoom.id),
             text: userText,
             user: doc(firestore, "users", auth?.currentUser?.email), //email is key for users collection
             updatedAt: Timestamp.fromDate(new Date()) //store current time
         }
-        //now add chat message under above chatroom
-        addDoc(collection(firestore, "chatmessages"), (chatmessageObj)).then(() => {
-            setUserText("");
+
+        if (localChatMsgImage) {
+
+            //if there is an image, insert into firebase storage.
+            var localImageName = `chatimages/${auth.currentUser.email}_${new Date().getTime()}_${localChatMsgImage.name}`;
+            const localImageStorageRef = ref(storage, localImageName);
+
+            const uploadTask = uploadBytes(localImageStorageRef, localChatMsgImage).then((snapshot) => {
+                console.log('Uploaded a blob or file!');
+
+                getDownloadURL(ref(storage, localImageName)).then((url) => {
+                    //set image into message obj
+                    chatmessageObj.imageURL = url;
+
+                    //add message into firestore
+                    addDoc(collection(firestore, "chatmessages"), (chatmessageObj)).then(() => {
+                        setUserText("");
+                    })
+                })
+            });
+
+        } else {
+            //add chat message under above chatroom
+            addDoc(collection(firestore, "chatmessages"), (chatmessageObj)).then(() => {
+                setUserText("");
+            })
+        }
+    }
+
+    const addToFAQ = async (adminChatMsg) => {
+        console.log(adminChatMsg);
+
+        //fist find end user's message above this admin's message
+        //as it will be the question of FAQ and this admin's message will be Answer of FAQ
+
+        //first find index of admin's message
+        const indexOfAdminMsg = chatMessages.findIndex((ele) => {
+            return ele.id == adminChatMsg.id
+        })
+
+        //now get message before this, assumption is that this will be end user's message
+        const EndUserMsg = chatMessages[(indexOfAdminMsg - 1)]
+
+        //now build the FAQ's object which will be stored in firestore
+        const videoFAQObj = {
+            faqQuestion: {
+                text: EndUserMsg.text
+            },
+            faqAnswer: {
+                text: adminChatMsg.text,
+                imageURL: adminChatMsg.imageURL || ''
+            },
+            video: selectedChatRoom.video.title,
+            question: selectedChatRoom.question
+        }
+
+        //now add above faq to firestore
+        //add chat message under above chatroom
+        addDoc(collection(firestore, "videofaqs"), (videoFAQObj)).then(() => {
+            //set a flag indicating it's already added to FAQ.
+            adminChatMsg.isAddedToFAQ = true;
+
+            //store this flag on firestore so that next time this chat is opneed,
+            //admin know's that FAQ is already added for this message.
+            //setDoc - add if not there.. if already there ignore, if any change, update existing record.
+            setDoc(doc(firestore, "chatmessages",
+                adminChatMsg.id), ({ isAddedToFAQ: true }), { merge: true })
+
+            //show toast message
+            alert('FAQ added successfully!');
+
         })
 
 
@@ -124,18 +201,47 @@ function ChatroomChat() {
                 <div className='flex-fill p-2 ps-3 iwse-chatmsg-container'>
                     {chatMessages.map((chatmsg) => (
                         <div key={chatmsg.id} className={`d-flex ${chatmsg.user.id === auth.currentUser.email ? "justify-content-end" : ""}`} >
-                            <div
-                                className={`chat-bubble ${chatmsg.user.id === auth.currentUser.email ? "right" : ""}`}>
-                                <img
-                                    className="chat-bubble__left"
-                                    src={chatmsg.userDetails.photoURL}
-                                    alt="user avatar"
-                                />
-                                <div className="chat-bubble__right">
-                                    <p className="user-name">{chatmsg?.name}</p>
-                                    <p className="user-message"> {chatmsg.text}</p>
+                            <div className={`chat-bubble flex-column align-items-center ${chatmsg.user.id === auth.currentUser.email ? "right" : ""}`}>
+
+                                <div className='d-flex'>
+                                    <img
+                                        className="chat-bubble__left"
+                                        src={chatmsg.userDetails.photoURL}
+                                        alt="user avatar"
+                                    />
+                                    <div className="chat-bubble__right">
+                                        <p className="user-message"> {chatmsg.text}</p>
+                                    </div>
                                 </div>
+
+                                {chatmsg?.imageURL && <div>
+                                    <img style={{ width: '100%' }} src={chatmsg?.imageURL}></img>
+                                </div>}
+
+
+                                {/* Add to FAQs button */}
+                                {!chatmsg?.isAddedToFAQ && loggedInUser?.isAdmin && chatmsg.user.id === auth.currentUser.email && <div>
+                                    <div className='mt-2 mb-1'>
+                                        <button className='btn btn-outline-danger btn-sm'
+                                            onClick={() => { addToFAQ(chatmsg) }}> Add to FAQ's</button>
+                                    </div>
+
+
+
+                                </div>}
+
+                                {/* Already added to FAQ message   */}
+                                {chatmsg?.isAddedToFAQ && <div className='alert alert-light mb-0 p-1 mt-1'>
+                                    <span>Already added to FAQ's</span>
+                                </div>}
+
+
                             </div>
+
+
+
+
+
 
                         </div>
 
@@ -156,7 +262,12 @@ function ChatroomChat() {
 
                             <div className='iwse-add-image'>
 
-                                <input id="iwse-file-upload" type="file" onClick={(e) => e.stopPropagation()} />
+                                <input id="iwse-file-upload" type="file" onClick={(e) => e.stopPropagation()}
+                                    onChange={(e) => {
+                                        const image = e.target.files[0]
+                                        console.log(image);
+                                        setLocalChatMsgImage(image);
+                                    }} />
 
                             </div>
                         </div>
@@ -168,6 +279,8 @@ function ChatroomChat() {
 
                 </div>
             </div>
+
+
 
         </div>
 
