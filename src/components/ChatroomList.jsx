@@ -1,23 +1,34 @@
 import React, { useEffect, useState, useContext } from 'react';
 
 import { app, firestore, auth, analytics, storage, database } from "../services/firebase";
-import { QuerySnapshot, collection, getDocs, onSnapshot, addDoc, orderBy, query, doc, updateDoc, getDoc } from "firebase/firestore";
+import { QuerySnapshot, collection, getDocs, onSnapshot, addDoc, orderBy, query, doc, updateDoc, getDoc, where } from "firebase/firestore";
 import { Nav, Button, Card, ListGroup, Badge } from 'react-bootstrap'
 
-import chatContext from '../context/context';
+import appContext from '../context/context';
 
 function ChatroomList() {
 
     const [chatRooms, setChatRooms] = useState([]);
 
-    const {updateSelectedChatRoom} = useContext(chatContext);
+    const {updateSelectedChatRoom} = useContext(appContext);
+
+    const { loggedInUser } = useContext(appContext);
+
 
     //function called inside useEffect
     const getFirebaseData = async () => {
 
-        //fetch all chatrooms, sort by latest first
-        const chatroomQuery = query(collection(firestore, "chatrooms"), orderBy("updatedAt", "desc"));
+        let chatroomQuery;
 
+        //fetch all chatrooms, sort by latest first
+       
+        if(loggedInUser?.isAdmin){
+             chatroomQuery = query(collection(firestore, "chatrooms")); //fetch all chat rooms
+        }else{
+             const userDoc = doc(firestore, "users", loggedInUser.email); //fetch logged in user document
+             chatroomQuery = query(collection(firestore, "chatrooms"),where("user", "==", userDoc)); //fetch only logged in user's
+        }
+        
         onSnapshot(chatroomQuery, (snapshot) => {
 
             let chatRoomsLocalArr = [];
@@ -39,6 +50,7 @@ function ChatroomList() {
                     id: doc.id,
                     ...doc.data(),
                     userDetails: await userDoc.then((d) => d.data()),
+                    updatedAtDate: doc.data().updatedAt.toDate(),
                     questionDetails: await questionDoc.then((d) => {
                         return {
                             id: d.id,
@@ -57,6 +69,11 @@ function ChatroomList() {
                     chatRoomsLocalArr.forEach((chatroomObj) => {
                         chatroomObj.videoName = chatroomObj.questionDetails.balances.hint.title.find((ele) => ele.linkTitle == chatroomObj.video.link);
                         chatroomObj.videoType = chatroomObj.questionDetails.balances.hint.titleColumn.find((ele) => ele.linkTitle == chatroomObj.video.type);
+                    })
+
+                      //sort the chatrooms newest to oldest. firebase doesnot support sort when query is on differnt field. i.e user
+                      chatRoomsLocalArr.sort((a, b) => {
+                        return ((new Date(b.updatedAtDate).valueOf()) - (new Date(a.updatedAtDate).valueOf()));
                     })
 
                     setChatRooms(chatRoomsLocalArr)
@@ -81,10 +98,10 @@ function ChatroomList() {
                     {chatRooms && chatRooms.map((chatroomObj) => (
                         <ListGroup.Item key={chatroomObj.id} onClick={() => { updateSelectedChatRoom(chatroomObj) }}>
                             <div>
-                                <div className="user-info">
+                                {loggedInUser?.isAdmin && <div className="user-info">
                                     <img src={chatroomObj.userDetails.photoURL} alt="User 1" />
                                     <span className="user-name">{chatroomObj.userDetails.displayName}</span>
-                                </div>
+                                </div> }
                                 <div>
                                     <div><label >Question: </label>
                                         <span className=' fw-bold'>{chatroomObj.questionDetails[chatroomObj.questionDetails.id].questions.title}</span></div>

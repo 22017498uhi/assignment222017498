@@ -231,7 +231,7 @@ function ChatroomChat() {
                                 </div>}
 
                                 {/* Already added to FAQ message   */}
-                                {chatmsg?.isAddedToFAQ && <div className='alert alert-light mb-0 p-1 mt-1'>
+                                {chatmsg?.isAddedToFAQ && loggedInUser?.isAdmin && <div className='alert alert-light mb-0 p-1 mt-1'>
                                     <span>Already added to FAQ's</span>
                                 </div>}
 
