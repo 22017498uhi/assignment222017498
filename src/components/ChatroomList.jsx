@@ -16,7 +16,11 @@ const { loggedInUser } = useContext(appContext); //fetch logged in user from con
 //function called inside useEffect
 const getFirebaseData = async () => {
 
+    console.log('chatroomlist fetch chatrooms')
+
     let chatroomQuery;
+
+    console.log(loggedInUser);
 
     //fetch chatrooms, 
     if(loggedInUser?.isAdmin){

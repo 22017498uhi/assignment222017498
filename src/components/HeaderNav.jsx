@@ -1,10 +1,10 @@
 import React, { useEffect, useContext } from 'react';
 
-import { Nav, Navbar, Container } from 'react-bootstrap'
+import { Nav, Navbar } from 'react-bootstrap'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { firestore, auth } from "../services/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDocFromServer } from "firebase/firestore";
 
 import ChatWindow from './ChatWindow';
 import appContext from '../context/context';
@@ -18,12 +18,17 @@ function HeaderNav() {
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                const userRef = doc(firestore, "users", user.email); //email is unique id for users collection
-                const userDoc = await getDoc(userRef);
 
-                if (userDoc.exists()) {
-                    updateLoggedInUser(userDoc.data())
-                }
+                setTimeout(async() => {
+                    const userRef = doc(firestore, "users", user.email); //email is unique id for users collection
+                    const userDoc = await getDocFromServer(userRef);
+    
+                    
+                    if (userDoc.exists()) {
+                        updateLoggedInUser(userDoc.data())
+                    }
+                },1000);
+                
             } else {
                 //logout
                 //clear global state
@@ -54,10 +59,10 @@ function HeaderNav() {
         <div>
             <div>
 
-                <Navbar className='mb-2' style={{backgroundColor:'#ecf0f1'}} expand="lg">
-                    <Container>
+                <Navbar className='mb-2 px-5 d-flex justify-content-between' style={{backgroundColor:'#ecf0f1'}} expand="lg">
+                   
                     <Navbar.Brand href="#home">IWSE</Navbar.Brand>
-                        <Nav className="justify-content-end" activeKey="/home">
+                        <Nav className="d-flex flex-row justify-content-end"  activeKey="/home">
 
                             <Nav.Item>
                                 <Nav.Link className='me-2' eventKey="chats">
@@ -74,7 +79,7 @@ function HeaderNav() {
                                 </Nav.Link>
                             </Nav.Item>
                         </Nav>
-                    </Container>
+                    
                 </Navbar>
 
             </div>

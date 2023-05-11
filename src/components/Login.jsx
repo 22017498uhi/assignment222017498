@@ -20,8 +20,6 @@ function Login() {
                         const auth = getAuth();
                         const provider = new GoogleAuthProvider();
                         signInWithPopup(auth, provider).then((resp) => {
-                            console.log('sing in done');
-                          
                             if (resp.user) {
                                 //create user in firestore
                                 //so that we can use user's name and photo for chat window feature
@@ -29,13 +27,12 @@ function Login() {
                                 const userObj = {
                                     displayName: resp.user.displayName,
                                     email: resp.user.email,
-                                    photoURL: resp.user.photoURL,
-                                    isAdmin: false
+                                    photoURL: resp.user.photoURL
                                 }
 
                                 //setDoc - add if not there.. if already there ignore, if any change, update existing record.
                                 setDoc(doc(firestore, "users",
-                                resp.user.email), (userObj), { merge: true })
+                                resp.user.email), (userObj), { merge: true });
                             }
                         })
 
