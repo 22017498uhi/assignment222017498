@@ -6,7 +6,7 @@
 * [About the Project](#about-the-project)
 * [Getting Started](#getting-started)
     * [Prerequisites](#prerequisites)
-    * [Installation Steps](#installation)
+    * [Installation Steps](#installation-steps)
 * [Usage](#usage)
 * [Test details](#test-details)
     * [getQuestionData Tests](#getquestiondata-tests)
