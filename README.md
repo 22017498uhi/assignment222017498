@@ -1,70 +1,103 @@
-# Getting Started with Create React App
+# assignment222017498
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<!-- TABLE OF CONTENTS -->
+## Table of Contents
 
-## Available Scripts
+* [About the Project](#about-the-project)
+* [Getting Started](#getting-started)
+    * [Prerequisites](#prerequisites)
+    * [Installation Steps](#installation)
+* [Usage](#usage)
+* [Test details](#test-details)
+    * [getQuestionData Tests](#getquestiondata-tests)
+    * [attemptQuestion Tests](#attemptquestion-tests)
 
-In the project directory, you can run:
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+<!-- ABOUT THE PROJECT -->
+## About The Project
+This project shows TDD (test driven development) approach. In this approach, test cases for couple of functions are written first then the actual function is coded. these test cases are built using Jest. Click on below link to read more about it.
+* [Jest](https://jestjs.io/)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+<!-- GETTING STARTED -->
+## Getting Started
 
-### `npm run build`
+This section shows the prerequisites required and steps on how to get this project running locally on your device.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Prerequisites
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+This project requires NodeJS and NPM.
+[Node](http://nodejs.org/) and [NPM](https://npmjs.org/) are easy to install.
+To make sure you have them available on your machine,
+try running the following command.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```sh
+$ npm -v && node -v
+6.4.1
+v8.16.0
+```
 
-### `npm run eject`
+## Installation Steps
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Start with cloning this repo on your local machine:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```sh
+$ git clone https://github.com/22017498uhi/assignment122017498.git
+```
+Navigate to the project directory.
+```sh
+$ cd assignment122017498
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Install NPM packages.
+```sh
+npm install
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-## Learn More
+<!-- USAGE EXAMPLES -->
+## Usage
+Run below command to execute the tests and see the results.
+```
+npm test -- --verbose=true
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+The extra option "--verbose=true" is added so that detailed result can be seen.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Test details
+This project contains below two functions.
+* getQuestionData -> This function takes questiondID string as input and returns related JSON object from the data.js file.
+* attemptQuestion -> This function takes index of the answer selected and returns whether it was correct or incorrect.
 
-### Code Splitting
+### getQuestionData Tests
+One of the fundamental functionalities of [i-want-to-study-engineering](https://i-want-to-study-engineering.org/q/balances) is to fetch and show data related to a question based on its questionID.
+Hence it's critical that valid questionID is be supplied, else user would not see any data on the page.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+This project contains below tests related to input param of this function.
+* When no argument is supplied
+* When incorrect type "number" is supplied
+* When null is supplied
+* When invalid string such as "abcd" is supplied
+* When valid string is supplied, for example, "balances"
 
-### Analyzing the Bundle Size
+Also, after valid questionID is passed, it is essential that response contains important data related to question title, hint section, answer section etc. Hence, I have covered below tests related to this.
+* When response contains "questions" property as expected 
+* When response contains "hints" property as expected
+* When response contains "answer" property
+* When response contains "answer" property which should be an array with atleast 2 elements
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+For above last test, it is essential that response contains at least 2 answer choices in the array because if it returns only 0 or 1 answer choice, then we won't be able to ask user to make any selection!
 
-### Making a Progressive Web App
+### attemptQuestion Tests
+Attempting question is one of the major action users perform on this site. Hence below tests are covered for this function. 
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Input Related
+* When no input argument is passed
+* When non number "abcd" is passed as argument, returns error response "valid number must be supplied."
+* When valid number argument is passed, for example 1
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Response Related
+* When correct answer is selected, return "Your answer is correct."
+* When incorrect answer is selected, return "Your answer is incorrect." 
