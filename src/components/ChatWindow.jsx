@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import './ChatWindow.scss'
 
 import ChatroomList from "./ChatroomList";
@@ -11,14 +11,11 @@ function ChatWindow() {
 
     const { selectedChatRoom } = useContext(context)
 
-
     return (
 
         <div style={{height:'100%'}}>
             
-
-            {Object.entries(selectedChatRoom).length == 0  && <ChatroomList /> }
-
+            {Object.entries(selectedChatRoom).length === 0  && <ChatroomList /> }
             {Object.entries(selectedChatRoom).length > 0  && <ChatroomChat />}
 
         </div>

@@ -114,6 +114,14 @@ hr {
   bottom: 7px;
 }
 
+.iwse-msg-input{
+  width: 80%;
+  border: 0;
+  &:focus{
+    box-shadow: none;
+  }
+}
+
 #iwse-file-upload {
   width: 70px;
   overflow: hidden;
@@ -126,7 +134,7 @@ hr {
 #iwse-file-upload::before {
   content: 'Add image';
   display: inline-block;
-  background: linear-gradient(top, #f9f9f9, #e3e3e3);
+  background: linear-gradient(to top, #f9f9f9, #e3e3e3);
   border: 1px solid #999;
   border-radius: 3px;
   padding: 3px 5px;
@@ -144,5 +152,5 @@ hr {
 }
 
 #iwse-file-upload:active::before {
-  background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9);
+  background: -webkit-linear-gradient(to top, #e3e3e3, #f9f9f9);
 }

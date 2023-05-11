@@ -1,4 +1,4 @@
-import logo from './logo.svg';
+
 import "../node_modules/reactjs-popup/dist/index.css"
 import './App.scss';
 
@@ -6,7 +6,6 @@ import './App.scss';
 import QuestionPage from './pages/QuestionPage';
 import Login from './components/Login';
 import HeaderNav from './components/HeaderNav';
-
 import GlobalState from './context/GlobalState';
 
 //Import modules
@@ -58,12 +57,9 @@ function App() {
   //Define states
   const [authenticated, setAuthenticated] = useState(false);
 
-
   useEffect( () => {
 
-   
     onAuthStateChanged(auth, (user) => {
-      console.log(user);
       if(user){
         setAuthenticated(true)
       }else {

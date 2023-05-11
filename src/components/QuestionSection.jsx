@@ -4,9 +4,9 @@ import { doc, getDoc } from "firebase/firestore";
 
 function QuestionSection() {
 
-const [title, setTitle] = useState("")
-const [questionText, setQuestionText] = useState("")
-const [imageUri, setImageUri] = useState("")
+const [title, setTitle] = useState("") //stores title of the question
+const [questionText, setQuestionText] = useState("") //stores summary text
+const [imageUri, setImageUri] = useState("") //stores image of the question
 
 const questionId = "balances" // should be done through URL and routing with useParams()
 
@@ -18,7 +18,6 @@ const getFirebaseData = async () => {
 
     if (questionsDocSnap.exists()) {
         const questionData = questionsDocSnap.data()
-        console.log(questionData);
         setTitle(questionData[questionId].questions.title)
         setQuestionText(questionData[questionId].questions.fullquestion.question)
         setImageUri(questionData[questionId].questions.fullquestion.questionImage)
@@ -37,7 +36,7 @@ return (
         <h2 className="text-center ">{title}</h2>
         <div className="p-3 mb-2" style={{backgroundColor:'#ecf0f1'}}>
             <div className="text-center">
-            <img className="mb-4 rounded img-fluid" src={imageUri} />
+            <img alt='Question' className="mb-4 rounded img-fluid" src={imageUri} />
             </div>
             <p className='ques_sec_detail'>{questionText}</p>
         </div>

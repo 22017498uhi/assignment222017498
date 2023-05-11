@@ -2,13 +2,10 @@ import React, { useEffect, useState } from 'react';
 
 import Popup from 'reactjs-popup';
 import ReactPlayer from 'react-player'
-
-import { app, firestore, auth, analytics, storage, database } from "../services/firebase";
+import {  firestore, auth, storage } from "../services/firebase";
 import { doc, getDoc, setDoc, collection, addDoc, Timestamp, query, where, onSnapshot } from "firebase/firestore";
 import { ref, getDownloadURL } from "firebase/storage";
-
 import {Alert, Accordion} from 'react-bootstrap';
-
 
 
 
@@ -25,7 +22,7 @@ function HintsSection() {
     const [confusedText, setConfusedText] = useState("") // data of video currently shown on popup
     const [confusedMsgSubmitted, setConfusedMsgSubmitted] = useState(false) // flag to indicate confused message submission status
 
-    const [videoFAQs, setVideoFAQs] = useState([])
+    const [videoFAQs, setVideoFAQs] = useState([]) //stores FAQs fetched from firestore
 
 
     const closeSummaryModal = () => setSummaryPopupOpen(false);
@@ -54,6 +51,7 @@ function HintsSection() {
 
     useEffect(() => {
         getFirebaseData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
 
@@ -76,12 +74,8 @@ function HintsSection() {
                         ...doc.data(),
                         id: doc.id
                     })
-
                 })
-
                 setVideoFAQs(faqLocalArr);
-
-                console.log(faqLocalArr);
             })
 
         });
@@ -89,10 +83,7 @@ function HintsSection() {
 
 
     const sendConfusedMessageDB = async () => {
-        console.log(selectedVideoObj);
-        console.log(confusedText);
-        console.log(auth?.currentUser?.uid);
-
+    
         //first add chatroom
         const chatRoomObj = {
             user: doc(firestore, "users", auth?.currentUser?.email),
@@ -126,15 +117,10 @@ function HintsSection() {
         <div className="col-sm">
             <h2 className="text-center">Hints</h2>
 
-
-
-
             <div className="p-3 mb-2" style={{ backgroundColor: '#ecf0f1' }}>
-
                 <div className="row">
                     {/* its blank div as header has only two elements whereas rows are three */}
                     <div className="col-2 text-center"></div>
-
                     {/* iterate over titleColumn */}
                     {hintsData && hintsData.titleColumn.map((columnObj) => (
                         <div key={columnObj.linkTitle} className="col-5 text-center">
@@ -155,7 +141,7 @@ function HintsSection() {
                             <div key={columnObj.linkTitle} className="col-5 text-center">
                                 {hintsData?.video.map((videoObj, $index) => (
                                     <div key={$index}>
-                                        {videoObj?.type == columnObj.linkTitle && videoObj?.link == rowObj.linkTitle
+                                        {videoObj?.type === columnObj.linkTitle && videoObj?.link === rowObj.linkTitle
                                             && (
                                                 <div className="d-flex flex-column" style={{ border: `2px solid ${videoObj?.type === 'general' ? '#0d6efcb8' : '#1987549c'}`, padding: '4px 4px 2px 4px', borderRadius: '5px' }}>
                                                     <button type="button" name={videoObj.title}
@@ -185,10 +171,10 @@ function HintsSection() {
             {/* Summary Button Popup code is below */}
             <Popup lockScroll repositionOnResize open={summaryPopupOpen} onClose={closeSummaryModal}>
                 <div className="my-modal">
-                    <a className="close" onClick={closeSummaryModal}>
+                    <button className="close" onClick={closeSummaryModal}>
                         &times;
-                    </a>
-                    <span><img style={{ maxWidth: '640px', maxHeight: '480px' }} src={summaryImageUrl}></img></span>
+                    </button>
+                    <span><img alt='summary' style={{ maxWidth: '640px', maxHeight: '480px' }} src={summaryImageUrl}></img></span>
                 </div>
             </Popup>
 
@@ -205,7 +191,7 @@ function HintsSection() {
                                 <Accordion.Header>{faq.faqQuestion.text}</Accordion.Header>
                                 <Accordion.Body>
                                     <div>
-                                        {faq.faqAnswer?.imageURL && <div><img className='img-fluid rounded border' src={faq.faqAnswer.imageURL}></img></div> }
+                                        {faq.faqAnswer?.imageURL && <div><img alt='FAQ' className='img-fluid rounded border' src={faq.faqAnswer.imageURL}></img></div> }
                                         <div>{faq.faqAnswer.text}</div>
                                     </div>
                                 </Accordion.Body>
@@ -214,8 +200,7 @@ function HintsSection() {
                            
                         </Accordion> }
 
-
-                        {videoFAQs.length == 0 && <div>
+                        {videoFAQs.length === 0 && <div>
                             <Alert  variant='secondary'>
                                 There are no FAQ's for this video.
                                 </Alert>
@@ -224,9 +209,9 @@ function HintsSection() {
                     </div>
 
                     <div>
-                        <a className="close" onClick={closeVideoModal}>
+                        <button href='#' className="close" onClick={closeVideoModal}>
                             &times;
-                        </a>
+                        </button>
                         <div className='ms-2'><ReactPlayer url={videoUrl} playing={true}  height="50vh" width={"45vw"}  controls={true} /></div>
                         <div className='d-flex justify-content-end my-2 mx-3'>
                             {!showConfusedForm && <button className='btn btn-danger' onClick={() => {
@@ -255,7 +240,7 @@ function HintsSection() {
                         <Alert show={confusedMsgSubmitted} variant="success">
                             <Alert.Heading> Your message was sent,and you will get a reply within 3 days.</Alert.Heading>
                         </Alert>
-                        {/* <div className='bg-body-secondary border border-secondary-subtle text-center fs-4 text-wrap p-2'>Your message was sent,and you will get a reply within 3 days.</div> */}
+                       
                     </div>
                 </div>
             </Popup>

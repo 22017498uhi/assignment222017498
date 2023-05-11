@@ -1,28 +1,21 @@
 
 import React, { useEffect, useState } from 'react';
-import { app, firestore, auth, analytics, storage, database } from "../services/firebase";
-import { doc, getDoc, setDoc, collection, addDoc, Timestamp, query, where, onSnapshot } from "firebase/firestore";
-
+import { firestore } from "../services/firebase";
+import { doc, getDoc, setDoc} from "firebase/firestore";
 import { MathJax } from "better-react-mathjax";
-
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-
+import { Chart as ChartJS, ArcElement } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
-
 
 ChartJS.register(ArcElement);
 
-
-
 function AnswerSection() {
 
-    //  const questionId = "balances" // should be done through URL and routing with useParams()
-    const [questionId, setQuestionId] = useState('balances'); // should be done through URL and routing with useParams()
-    const [answerData, setAnswerData] = useState([])
-    const [totalUserReponsesCount, setTotalUserResponsesCount] = useState(0);
-    const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(-1);
-    const [answerResult, setAnswerResult] = useState("");
-    const [showAnswerPopularity, setShowAnswerPopularity] = useState(false);
+    const [questionId] = useState('balances'); // should be done through URL and routing with useParams()
+    const [answerData, setAnswerData] = useState([]) //answerdata from firestore stored here
+    const [totalUserReponsesCount, setTotalUserResponsesCount] = useState(0); //stores total response count of each answer, used for answer popularity feature
+    const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(-1); // stores the index of answer selected by the user
+    const [answerResult, setAnswerResult] = useState(""); //stores outcome of answer attempt i.e correct or incorrect
+    const [showAnswerPopularity, setShowAnswerPopularity] = useState(false); // flag controls visibiliy of answer popularity chart
 
     //function called inside useEffect
     const getFirebaseData = async () => {
@@ -31,35 +24,26 @@ function AnswerSection() {
         const questionsDocSnap = await getDoc(questionsRef);
 
         if (questionsDocSnap.exists()) {
-            const questionData = questionsDocSnap.data()
 
+            const questionData = questionsDocSnap.data()
             let answerLocalData = questionData[questionId].questions.fullquestion.answer;
 
-            //got total responses
+            //get total responses
            const totalUserResponsesCount = answerLocalData.reduce((a, currentObj) =>
               currentObj.userResponsesCount + a,0
             )
 
             setTotalUserResponsesCount(totalUserResponsesCount);
-
-            
-
-
-
-            console.log(totalUserResponsesCount);
-
             setAnswerData(questionData[questionId].questions.fullquestion.answer)
-
-
-            
+  
         } else {
             console.log("No such document!");
         }
     }
 
-
     useEffect(() => {
         getFirebaseData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
 
@@ -83,7 +67,7 @@ function AnswerSection() {
 
         //now check if selected answer is correct
         const correctAns = answerData.find((ele, index) => {
-            return (index == selectedAnswerIndex) && (ele.correct == true)
+            return (index === selectedAnswerIndex) && (ele.correct === true)
         })
 
         if (correctAns) {
@@ -91,9 +75,7 @@ function AnswerSection() {
         } else {
             setAnswerResult('incorrect');
         }
-
     }
-
 
     return (
         <div className="col-12">
@@ -102,7 +84,7 @@ function AnswerSection() {
                 <div className="row">
                     {answerData && answerData.map((ansObj, index) => (
                         <div key={index} className="col-6">
-                            <button type="button" className={`btn btn-secondary mb-2 p-4 iwse-ans-btn ${selectedAnswerIndex == index ? 'iwse-selected-ans' : ''}`} style={{ width: '100%' }}
+                            <button type="button" className={`btn btn-secondary mb-2 p-4 iwse-ans-btn ${selectedAnswerIndex === index ? 'iwse-selected-ans' : ''}`} style={{ width: '100%' }}
                                 onClick={() => { setSelectedAnswerIndex(index); setAnswerResult("") }}>
                                 <span className='d-flex justify-between align-items-center'>
                                     <span className='flex-fill'><MathJax>{ansObj.text}</MathJax></span>
@@ -131,7 +113,7 @@ function AnswerSection() {
                     <div className="col-sm text-center">
                         {!answerResult && <div><button type="button" className="btn btn-primary mb-2 p-4" onClick={validateAnswer} disabled={selectedAnswerIndex < 0}>CHECK MY ANSWER</button> 
                         <button className='btn btn-link ms-2' onClick={() => {setShowAnswerPopularity(true)}}>Check Answer popularity</button> </div>}
-                        {answerResult && <button className={`btn btn-primary mb-2 p-4 ${answerResult == 'correct' ? 'btn-success' : 'btn-danger'}`}>{answerResult == 'correct' ? 'CORRECT' : 'WRONG, TRY AGAIN!'}</button>}
+                        {answerResult && <button className={`btn btn-primary mb-2 p-4 ${answerResult === 'correct' ? 'btn-success' : 'btn-danger'}`}>{answerResult === 'correct' ? 'CORRECT' : 'WRONG, TRY AGAIN!'}</button>}
                     </div>
                 </div>
             </div>

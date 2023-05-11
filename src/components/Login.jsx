@@ -1,6 +1,6 @@
 //import firebase from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { doc, getDoc, setDoc, collection, addDoc, Timestamp } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import {firestore} from "../services/firebase";
 
 function Login() {
@@ -40,7 +40,7 @@ function Login() {
                         })
 
                     }}>
-                        <span className="login-btn-image"><img className="google-icon" src="https://firebasestorage.googleapis.com/v0/b/assignment222017498.appspot.com/o/google_logo.svg?alt=media&token=40b74b3a-83c4-42f9-b62c-d06b65cd1ffd" /></span><span>Login with Google</span>
+                        <span className="login-btn-image"><img alt="Google logo" className="google-icon" src="https://firebasestorage.googleapis.com/v0/b/assignment222017498.appspot.com/o/google_logo.svg?alt=media&token=40b74b3a-83c4-42f9-b62c-d06b65cd1ffd" /></span><span>Login with Google</span>
                     </button>
                 </div>
 
