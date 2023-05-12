@@ -55,12 +55,14 @@ npm start
 
 <!-- ABOUT THE PROJECT -->
 ## Introduction
-This 
-* [Jest](https://jestjs.io/)
+This project is related to the website [iWantToStudyEngineering](https://i-want-to-study-engineering.org/). This website helps students in preparation for engineering exams and courses by providing different engineering questions on various areas suchas mathematics, physics etc. For each of these questions it also provides various videos to help them solve these questions and also provide knowledge on general engineering concepts.
+The purpose of this project is to build three new features on this website. The first feature is to provide a live chat feature between consumers of the website who are generally students and site admins who are engineering experts. This feature would allow students to ask experts any questions related to a question or engineering concept. To keep live chats streamlined, users would only be allowed to initiate a chat from a video on a question page so that communicatin is focused around that question and specifically that video. this is because it is not a social media style website and time of engineering experts is very valuable as its a non-profit website.
+Second feature is linked with above live chat feature. As mentioned earilier, live chat conversations happen related to a question specific or engineering concept related videos. Many users might ask the same question and admins would have to repeat the same answers in the live chat. To overcome this situation, Admins can choose to mark their live chat message as an FAQ. This marked FAQ message then would be automatically shown on video popup so that any new students can see these FAQ's related a video and it would help them clarify their doubts without having to use the live chat.
+The third and the last feature is related to helping the students in answer selection process. It's like providing a hint for solving the question. students can click on a button to see the answers popularity i.e see the percentage of users selecting a perticualr answer option. This would help the students in narrowing the their potential answer from 5 choices to 2-3 choices.
 
 
 ## Methodology
-some details on methodology.
+
 technologies used.
 overall component hierarchy diagram
 
